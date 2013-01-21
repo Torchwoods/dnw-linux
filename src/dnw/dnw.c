@@ -12,6 +12,9 @@
 
 const char* dev = "/dev/secbulk0";
 #define BLOCK_SIZE	(1*1024*1024)
+#define EZ6410_RAM_BASE 0x40008000
+//download address
+#define RAM_BASE        EZ6410_RAM_BASE
 
 struct download_buffer {
 	uint32_t	load_addr;  /* load address */
@@ -27,7 +30,7 @@ static int _download_buffer(struct download_buffer *buf)
 		printf("Can not open %s: %s\n", dev, strerror(errno));
 		return -1;
 	}
-
+        
 	printf("Writing data...\n");
 	size_t remain_size = buf->size;
 	size_t block_size = BLOCK_SIZE;
@@ -148,7 +151,7 @@ static int download_file(const char *path, unsigned long load_addr)
 
 int main(int argc, char* argv[])
 {
-	unsigned load_addr = 0x57e00000;
+	unsigned load_addr = RAM_BASE;
 	char* path = NULL;
 	int	c;
 
