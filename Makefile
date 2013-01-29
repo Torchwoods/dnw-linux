@@ -14,7 +14,7 @@ dnw:
 install: all
 	make -C $(dnw_src) install
 	make -C /lib/modules/`uname -r`/build M=$(driver_src) modules_install
-	cp dnw.rules /etc/udev/rules.d/
+	cp 51-dnw.rules /etc/udev/rules.d/
 	depmod
 
 clean:

@@ -1,2 +1,3 @@
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="5345", ATTRS{idProduct}=="1234", MODE="0666", RUN+="/sbin/modprobe secbulk"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="1234", MODE="0666", RUN+="/sbin/modprobe secbulk"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="067b", MODE="0666", RUN+="/sbin/modprobe usbserial"
