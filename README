@@ -1,9 +1,42 @@
-**************This code is based on the code from internet,
-**************but I do not know where it is from. If it's yours
-**************and think I have damaged your interests, please
-**************let me know. 
-**************contact: Du, Changbin <changbin.du@gmail.com>
+1、源码说明：
+1.1起因
+        由于本人最近要做一个嵌入式的项目，涉及到开发板的调试，按照开发板商提供的文档都
+        是要求在winxp下用dnw和xshell来调试，xshell还好说，关键是dnw usb驱动在win7下
+        无法安装，而且我工作环境都是linux，在linux下编译调试开发板本就是天经地义的事儿，
+        却被这些开发板商教导成在win下用虚拟机装linux系统作为编译环境，在win下用dnw来烧
+        写调试开发板，win系统还得是xp的，这不是坑爹吗？
+1.2说明
+        本源代码收集自网络，经过整理和加入宏定义，使其适用于OK6410/EZ6410/FS2410和
+        UT-Exynos4412（我当前使用的）开发板；对源码进行了适当的注释和错误纠正，同时加
+        了dnw2源代码（利用libusb而不需内核驱动）；同样以GPL协议发布；
 
+2、使用说明：
+2.1 编译
+        git clone git@github.com:hechaoyuyu/dnw-linux.git
+        cd dnw-linux
+        make 
+        make install
+	安装的文件为：
+	dnw         ---	用于传输数据的软件（依赖secbulk.ko），用法：dnw filename
+	secbulk.ko  --- 识别下载用USB的驱动；
+        dnw.rules   --- 自动加载secbulk.ko；
+        dnw2        --- 基于libusb而不用内核模块的数据传输程序，用法：dnw2 filename
+2.1 使用
+        首先用串口线连好PC与开发板（我用的是usb转串口线），并设置好kermit或minicom（用dmesg查看串口设备文件），
+        启动开发板进入u-boot，输入dnw <下载地址>，如我要下载bootloader，则在开发板上输入dnw 0x40008000，
+        u-boot会提示你连接usb otg线，连接好usb线后，u-boot会提示已经连接完毕，可以进行数据传输，则在PC端输入
+        sudo dnw file_name或sudo dnw2 file_name，我这里是输入sudo dnw2 bootloader_mmc.bin，数据传输
+        完毕即可进行烧写操作。
+2.2 注意
+        关于dnw中指定的下载地址，请按自己开发板中记录的地址为准，再去改dnw2.c或dnw.c中对应的RAM_BASE。
+        连好usb线后，先在PC上用lsusb查看刚连接的usb设备ID号，再去改dnw2.c或secbulk.c中VENDOR_ID/
+        PRODUCT_ID或secbulk_table。
+3、后续开发
+        如有必要和时间，打算开发一个类似于win下的dnw图形界面版，集kermit/minicom与dnw下载功能如一体，用pygtk或
+        qt来做界面，如果谁有兴趣，可以与我联系：hechaoyuyu@gmail.com 。
+
+
+以下是针对OK6410开发板的使用流程：
 1. build and install
 =====================
 	$ make

@@ -38,8 +38,7 @@ struct usb_dev_handle * open_port()
 		struct usb_device *dev;
 		for (dev = bus->devices; dev; dev = dev->next) 
                 {
-			printf("idVendor:0x%x\t,ipProduct:0x%x\n",
-                        dev->descriptor.idVendor, dev->descriptor.idProduct);
+			//printf("idVendor:0x%x\t,ipProduct:0x%x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 			
                         if (VENDOR_ID == dev->descriptor.idVendor 
                         && PRODUCT_ID == dev->descriptor.idProduct) 
@@ -69,11 +68,6 @@ struct usb_dev_handle * open_port()
 	return NULL;
 }
 
-void usage() 
-{
-	printf("Usage: dnw2 <file>\n\n");
-}
-
 static u_int16_t ace_csum(const unsigned char *data, u_int32_t len)
 {
         u_int16_t csum = 0;
@@ -87,7 +81,7 @@ static u_int16_t ace_csum(const unsigned char *data, u_int32_t len)
         return csum;
 }
 
-unsigned char* prepare_write_buf(char *filename, unsigned int *len) 
+unsigned char* prepare_write_buf(char *filename, unsigned int *len, unsigned long load_addr) 
 {
 	unsigned char *write_buf = NULL;
 	struct stat fs;
@@ -119,7 +113,7 @@ unsigned char* prepare_write_buf(char *filename, unsigned int *len)
 	printf("Filename : %s\n", filename);
 	printf("Filesize : %lu bytes\n", fs.st_size);
 
-	*((u_int32_t*) write_buf) = RAM_BASE; //download address
+	*((u_int32_t*) write_buf) = load_addr; //download address
 	*((u_int32_t*) write_buf + 1) = fs.st_size + 10; //download size;
 	*len = fs.st_size + 10;
         
@@ -141,23 +135,42 @@ error:
 
 int main(int argc, char *argv[]) 
 {
-	if (2 != argc) 
+	unsigned load_addr = RAM_BASE;
+	char* path = NULL;
+	int	c;
+        
+        //处理命令行参数
+	while ((c = getopt (argc, argv, "a:h")) != EOF)
+	switch (c) 
         {
-		usage();
-		return 1;
+                case 'a':
+                        load_addr = strtol(optarg, NULL, 16);
+                        continue;
+                case '?': case 'h': default:
+        usage:
+                        printf("Usage: dwn2 [-a load_addr] <filename>\n");
+                        printf("Default load address: 0x40008000\n");
+                        return 1;
 	}
-
+	if (optind < argc)
+		path = argv[optind];
+	else
+		goto usage;
+        printf("load address: 0x%08X\n", load_addr);        
+        
+        //打开设备文件
 	struct usb_dev_handle *hdev = open_port();
 	if (!hdev) 
         {
 		return 1;
 	}
-
+        
+        //准备写入空间
 	unsigned int len = 0;
-	unsigned char* write_buf = prepare_write_buf(argv[1], &len);
+	unsigned char* write_buf = prepare_write_buf(path, &len, load_addr);
 	if (NULL == write_buf)
 		return 1;
-
+        //写入数据
 	unsigned int remain = len;
 	unsigned int towrite;
 	printf("Writing data ...\n");

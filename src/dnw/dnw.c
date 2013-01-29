@@ -16,7 +16,8 @@ const char* dev = "/dev/secbulk0";
 //download address
 #define RAM_BASE        EZ6410_RAM_BASE
 
-struct download_buffer {
+struct download_buffer 
+{
 	uint32_t	load_addr;  /* load address */
 	uint32_t	size; /* data size */
 	uint8_t		data[0];
@@ -26,7 +27,8 @@ struct download_buffer {
 static int _download_buffer(struct download_buffer *buf)
 {
 	int fd_dev = open(dev, O_WRONLY);
-	if( -1 == fd_dev) {
+	if( -1 == fd_dev) 
+        {
 		printf("Can not open %s: %s\n", dev, strerror(errno));
 		return -1;
 	}
@@ -35,9 +37,11 @@ static int _download_buffer(struct download_buffer *buf)
 	size_t remain_size = buf->size;
 	size_t block_size = BLOCK_SIZE;
 	size_t writed = 0;
-	while(remain_size>0) {
+	while(remain_size>0) 
+        {
 		size_t to_write = remain_size > block_size ? block_size : remain_size;
-		if( to_write != write(fd_dev, (unsigned char*)buf + writed, to_write)) {
+		if( to_write != write(fd_dev, (unsigned char*)buf + writed, to_write)) 
+                {
 			perror("write failed");
 			close(fd_dev);
 			return -1;
@@ -60,7 +64,8 @@ static inline void cal_and_set_checksum(struct download_buffer *buf)
 	uint16_t sum = 0;
 	int i;
 
-	for(i = 0; i < buf->size; i++) {
+	for(i = 0; i < buf->size; i++) 
+        {
 		sum += buf->data[i];
 	}
 	*((uint16_t*)(&((uint8_t*)buf)[buf->size - 2])) = sum;
@@ -91,22 +96,26 @@ static struct download_buffer *load_file(const char *path, unsigned long load_ad
 	int			fd;
 
 	fd = open(path, O_RDONLY);
-	if(-1 == fd) {
+	if(-1 == fd) 
+        {
 		printf("Can not open file %s: %s\n", path, strerror(errno));
 		return NULL;
 	}
 
-	if( -1 == fstat(fd, &file_stat) ) {
+	if( -1 == fstat(fd, &file_stat) ) 
+        {
 		perror("Get file size filed!\n");
 		goto error;
 	}	
 
 	buffer = alloc_buffer(file_stat.st_size);
-	if(NULL == buffer) {
+	if(NULL == buffer) 
+        {
 		perror("malloc failed!\n");
 		goto error;
 	}
-	if( file_stat.st_size !=  read(fd, buffer->data, file_stat.st_size)) {
+	if( file_stat.st_size !=  read(fd, buffer->data, file_stat.st_size)) 
+        {
 		perror("Read file failed!\n");
 		goto error;
 	}
@@ -133,19 +142,24 @@ static int download_file(const char *path, unsigned long load_addr)
 
 	buffer = load_file(path, load_addr);
 	gettimeofday(&__start,NULL);
-	if (buffer != NULL) {
-		if (_download_buffer(buffer) == 0) {
+	if (buffer != NULL) 
+        {
+		if (_download_buffer(buffer) == 0) 
+                {
 			gettimeofday(&__end,NULL);
 			__time_val = (long)(__end.tv_usec - __start.tv_usec)/1000 + \
 				(long)(__end.tv_sec - __start.tv_sec) * 1000;
 			speed = (float)buffer->size/__time_val/(1024*1024) * 1000;
 			printf("speed: %fM/S\n",speed);
 			free_buffer(buffer);
-		} else {
+		} 
+                else 
+                {
 			free_buffer(buffer);
 			return -1;
 		}
-	} else
+	} 
+        else
 		return -1;
 }
 
@@ -156,17 +170,16 @@ int main(int argc, char* argv[])
 	int	c;
 
 	while ((c = getopt (argc, argv, "a:h")) != EOF)
-	switch (c) {
-	case 'a':
-		load_addr = strtol(optarg, NULL, 16);
-		continue;
-	case '?':
-	case 'h':
-	default:
-usage:
-		printf("Usage: dwn [-a load_addr] <filename>\n");
-		printf("Default load address: 0x57e00000\n");
-		return 1;
+	switch (c) 
+        {
+                case 'a':
+                        load_addr = strtol(optarg, NULL, 16);
+                        continue;
+                case '?': case 'h': default:
+        usage:
+                        printf("Usage: dwn [-a load_addr] <filename>\n");
+                        printf("Default load address: 0x40008000\n");
+                        return 1;
 	}
 	if (optind < argc)
 		path = argv[optind];
@@ -174,7 +187,8 @@ usage:
 		goto usage;
 
 	printf("load address: 0x%08X\n", load_addr);
-	if (download_file(path, load_addr) != 0) {
+	if (download_file(path, load_addr) != 0) 
+        {
 		return -1;
 	}
 

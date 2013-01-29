@@ -7,5 +7,5 @@ dnw : dnw.c
 clean :
 	rm -rf dnw dnw2 *.o
 
-install : dnw
+install : dnw dnw2
 	cp $^ /usr/bin
