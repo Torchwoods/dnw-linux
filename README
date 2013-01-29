@@ -34,7 +34,8 @@
         改dnw2.c或secbulk.c中VENDOR_ID/PRODUCT_ID或secbulk_table。
 3、后续开发
         如有必要和时间，打算开发一个类似于win下的dnw图形界面版，集kermit/minicom与
-        dnw下载功能如一体，用pygtk或qt来做界面，如果谁有兴趣，可以与我联系：hechaoyuyu@gmail.com 。
+        dnw下载功能如一体，用pygtk或qt来做界面，如果谁有兴趣，可以与我联系：
+	hechaoyuyu@gmail.com 。
 
 
 以下是针对OK6410开发板的使用流程：
