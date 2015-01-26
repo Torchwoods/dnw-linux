@@ -12,6 +12,9 @@
 
 2、使用说明：
 2.1 编译
+	安装libusb
+	sudo apt-get install libusb-dev	
+
         git clone git@github.com:hechaoyuyu/dnw-linux.git
         cd dnw-linux
         make 
